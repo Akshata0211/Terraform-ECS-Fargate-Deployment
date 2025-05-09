@@ -20,7 +20,7 @@
    ```
    http://<public-ip>:5000
    ```
-   To find the IP: `AWS Console → ECS → Tasks → Click your running task → Configuration → Public IP`
+##### To find the IP: `AWS Console → ECS → Tasks → Click your running task → Configuration → Public IP`
 
 ### To destroy the infrastructure and remove all resources created by Terraform, run:
    ```
