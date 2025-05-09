@@ -16,16 +16,16 @@
    ```
 
 ### Access the Flask App in your browser
-   Once deployed, your app should be accessible via the public IP of the ECS task on port 5000.
-   ```
-   http://<public-ip>:5000
-   ```
-   To find the IP: 
+    Once deployed, your app should be accessible via the public IP of the ECS task on port 5000.
+    ```
+    http://<public-ip>:5000
+    ```
+    To find the IP: 
    ##### `AWS Console → ECS → Tasks → Click on running task → Configuration → Public IP`
 
 
 ### View Logs in CloudWatch
-   To see logs from the Flask container: 
+    To see logs from the Flask container: 
    ##### `AWS Console → CloudWatch → Log groups → select group → View log streams for task logs`
 
 
