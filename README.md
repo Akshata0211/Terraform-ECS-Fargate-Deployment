@@ -20,12 +20,14 @@
    ```
    http://<public-ip>:5000
    ```
-To find the IP: 
-##### `AWS Console → ECS → Tasks → Click on running task → Configuration → Public IP`
+   To find the IP: 
+   ##### `AWS Console → ECS → Tasks → Click on running task → Configuration → Public IP`
+
 
 ### View Logs in CloudWatch
-To see logs from the Flask container: 
-##### `AWS Console → CloudWatch → Log groups → select group → View log streams for task logs`
+   To see logs from the Flask container: 
+   ##### `AWS Console → CloudWatch → Log groups → select group → View log streams for task logs`
+
 
 ### To destroy the infrastructure and remove all resources created by Terraform, run:
    ```
