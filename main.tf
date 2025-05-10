@@ -67,6 +67,34 @@ resource "aws_ecr_repository" "flask_app" {
   name = "flask-app-repo"
 }
 
+# Push Docker image to ECR
+resource "null_resource" "docker_push" {
+  provisioner "local-exec" {
+    command = <<EOT
+      repo=${aws_ecr_repository.flask_app.repository_url}
+      echo "Logging in to AWS ECR..."
+      aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin $repo
+
+      echo "Building Docker image..."
+      docker build -t flask-app .
+
+      echo "Tagging image..."
+      docker tag flask-app:latest $repo:latest
+
+      echo "Pushing to ECR..."
+      docker push $repo:latest
+    EOT
+    # Adjust interpreter if not using Git Bash (for Windows users)
+    interpreter = ["C:/Program Files/Git/usr/bin/bash.exe", "-c"]
+  }
+
+  # triggers = {
+  #   always_run = timestamp()
+  # }
+
+  #depends_on = [aws_ecr_repository.flask_app]
+}
+
 # IAM role for ECS task execution
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
@@ -89,42 +117,14 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# CloudWatch Logs for ECS container
+# resource "aws_cloudwatch_log_group" "flask_app_logs" {
+#   name = "/ecs/flask-app-logs"
+# }
+
 # ECS Cluster
 resource "aws_ecs_cluster" "flask_cluster" {
   name = "flask-app-cluster"
-}
-
-# Push Docker image to ECR
-resource "null_resource" "docker_push" {
-  provisioner "local-exec" {
-    command = <<EOT
-      repo=${aws_ecr_repository.flask_app.repository_url}
-      echo "Logging in to AWS ECR..."
-      aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin $repo
-
-      echo "Building Docker image..."
-      docker build -t flask-app .
-
-      echo "Tagging image..."
-      docker tag flask-app:latest $repo:latest
-
-      echo "Pushing to ECR..."
-      docker push $repo:latest
-    EOT
-    # Adjust interpreter if not using Git Bash (for Windows users)
-    interpreter = ["C:/Program Files/Git/usr/bin/bash.exe", "-c"]
-  }
-
-  triggers = {
-    always_run = timestamp()
-  }
-
-  depends_on = [aws_ecr_repository.flask_app]
-}
-
-# CloudWatch Logs for ECS container
-resource "aws_cloudwatch_log_group" "flask_app_logs" {
-  name = "/ecs/flask-app-logs"
 }
 
 # ECS Task Definition
@@ -144,20 +144,20 @@ resource "aws_ecs_task_definition" "flask_task" {
       containerPort = 5000,
       protocol      = "tcp"
     }],
-    logConfiguration = {
-      logDriver = "awslogs",
-      options = {
-        awslogs-group         = aws_cloudwatch_log_group.flask_app_logs.name,
-        awslogs-region        = "us-west-1",
-        awslogs-stream-prefix = "flask-app"
-      }
-    }
+    # logConfiguration = {
+    #   logDriver = "awslogs",
+    #   options = {
+    #     awslogs-group         = aws_cloudwatch_log_group.flask_app_logs.name,
+    #     awslogs-region        = "us-west-1",
+    #     awslogs-stream-prefix = "flask-app"
+    #   }
+    # }
   }])
 
-  depends_on = [
-    null_resource.docker_push,
-    aws_cloudwatch_log_group.flask_app_logs
-  ]
+  # depends_on = [
+  #   null_resource.docker_push,
+  #   aws_cloudwatch_log_group.flask_app_logs
+  # ]
 }
 
 # ECS Service to run the task
@@ -174,5 +174,5 @@ resource "aws_ecs_service" "flask_service" {
     assign_public_ip = true
   }
 
-  depends_on = [aws_ecs_task_definition.flask_task]
+  #depends_on = [aws_ecs_task_definition.flask_task]
 }
