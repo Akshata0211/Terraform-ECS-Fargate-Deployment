@@ -70,7 +70,7 @@ resource "aws_ecs_task_definition" "my_fargate_task" {
   container_definitions = jsonencode([
     {
       name  = "nginx-container",
-      image = "471024348059.dkr.ecr.us-west-1.amazonaws.com/kavva:v1",
+      image = "471024348059.dkr.ecr.us-west-1.amazonaws.com/flask-app:v1",
       essential = true,
       portMappings = [
         {
